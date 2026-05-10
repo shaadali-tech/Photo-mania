@@ -13,9 +13,9 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="h-16 border-b border-pink-500/30 bg-linear-to-r from-zinc-950 via-red-950/20 to-pink-950/20 text-white px-6 flex items-center justify-between">
+    <nav className="h-16 border-b border-pink-500/30 bg-gradient-to-r from-zinc-950 via-red-950/20 to-pink-950/20 text-white px-6 flex items-center justify-between">
       {/* Logo */}
-      <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-linear-to-r from-pink-400 to-red-400">
+      <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-red-400">
         Photoholic
       </h1>
 
@@ -24,7 +24,7 @@ const Navbar = () => {
         <p className="text-sm text-pink-300/70">{user?.email}</p>
 
         <Button
-          className="bg-linear-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-semibold cursor-pointer"
+          className="bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-semibold cursor-pointer"
           onClick={handleLogout}
         >
           Logout

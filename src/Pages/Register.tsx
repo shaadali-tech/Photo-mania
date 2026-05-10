@@ -65,6 +65,8 @@ const Register = () => {
         email,
         bio: "",
         profileImage: "",
+        followers: [],
+        following: [],
         createdAt: new Date(),
       });
       navigate("/");
@@ -79,24 +81,38 @@ const Register = () => {
   const handleGoogleSignup = async () => {
     try {
       setLoading(true);
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
 
-      await signInWithPopup(auth, googleProvider);
+      // Create or merge user document in Firestore
+      await setDoc(
+        doc(db, "users", user.uid),
+        {
+          username: user.displayName || "",
+          email: user.email || "",
+          bio: "",
+          profileImage: user.photoURL || "",
+          createdAt: new Date(),
+        },
+        { merge: true },
+      );
 
       navigate("/");
     } catch (error) {
-      alert(error.message);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      alert((error as any).message || "Google sign-in failed");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-linear-to-br from-zinc-950 via-red-950/30 to-pink-950/30 px-4">
-      <Card className="w-full max-w-md bg-linear-to-br from-zinc-950 via-red-950/20 to-pink-950/20 border-pink-500/30 text-white shadow-2xl">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-zinc-950 via-red-950/30 to-pink-950/30 px-4">
+      <Card className="w-full max-w-md bg-gradient-to-br from-zinc-950 via-red-950/20 to-pink-950/20 border-pink-500/30 text-white shadow-2xl">
         <CardContent className="space-y-5 pt-8">
           {/* Logo */}
           <div className="text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-transparent bg-clip-text bg-linear-to-r from-pink-400 to-red-400">
+            <h1 className="text-4xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-red-400">
               Photoholic
             </h1>
 
@@ -157,7 +173,7 @@ const Register = () => {
 
           {/* Register Button */}
           <Button
-            className="w-full cursor-pointer bg-linear-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-semibold"
+            className="w-full cursor-pointer bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-semibold"
             onClick={handleRegister}
             disabled={loading}
           >
@@ -176,7 +192,7 @@ const Register = () => {
           {/* Google Signup */}
           <Button
             variant="outline"
-            className="w-full flex items-center gap-2 cursor-pointer bg-linear-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white border-pink-500/50"
+            className="w-full flex items-center gap-2 cursor-pointer bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white border-pink-500/50"
             onClick={handleGoogleSignup}
             disabled={loading}
           >
