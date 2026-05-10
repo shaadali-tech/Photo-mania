@@ -1,12 +1,21 @@
-import { Button } from "@/components/ui/button";
+import { Navigate, Route, Routes } from "react-router-dom";
 
-function App() {
+import ProtectedRoute from "@/Routes/ProtectedRoute";
+import Home from "@/Pages/Home";
+import Login from "@/Pages/Login";
+import Register from "@/Pages/Register";
+
+const App = () => {
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center">
-      <Button>Click me</Button>
-      <h1 className="text-6xl font-bold">Welcome to Photoholic</h1>
-    </div>
+    <Routes>
+      <Route element={<ProtectedRoute />}>
+        <Route path="/" element={<Home />} />
+      </Route>
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
-}
+};
 
 export default App;
