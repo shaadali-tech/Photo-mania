@@ -56,6 +56,8 @@ const CreatePost = () => {
         imageUrl,
         userId: auth.currentUser?.uid,
         userEmail: auth.currentUser?.email,
+        Likes: [],
+        comments: [],
         createdAt: serverTimestamp(),
       });
 

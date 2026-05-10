@@ -2,41 +2,42 @@ import { useEffect, useState } from "react";
 
 import { db } from "../firebase/firebase";
 
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
+import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import MainLayout from "@/Layout/MainLayout";
 import PostCard from "@/ProjectComponents/PostCard";
 import CreatePost from "@/ProjectComponents/CreatePost";
+
+type CommentType = {
+  text: string;
+  userEmail: string;
+};
 
 type PostType = {
   id: string;
   imageUrl: string;
   caption: string;
   userEmail: string;
+  likes: string[];
+  comments: CommentType[];
 };
 
 const Home = () => {
   const [posts, setPosts] = useState<PostType[]>([]);
 
   // Fetch posts
-  const fetchPosts = async () => {
-    try {
-      const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+  useEffect(() => {
+    const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
 
-      const querySnapshot = await getDocs(q);
-
-      const postsData: PostType[] = querySnapshot.docs.map((doc) => ({
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const postsData: PostType[] = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...(doc.data() as Omit<PostType, "id">),
       }));
 
       setPosts(postsData);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+    });
 
-  useEffect(() => {
-    fetchPosts();
+    return () => unsubscribe();
   }, []);
 
   return (
@@ -56,9 +57,12 @@ const Home = () => {
           posts.map((post) => (
             <PostCard
               key={post.id}
+              id={post.id}
               imageUrl={post.imageUrl}
               caption={post.caption}
               userEmail={post.userEmail}
+              likes={post.likes}
+              comments={post.comments}
             />
           ))
         ) : (
