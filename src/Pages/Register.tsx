@@ -5,7 +5,9 @@ import {
   signInWithPopup,
   updateProfile,
 } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 
+import { db } from "../firebase/firebase";
 import { auth, googleProvider } from "@/firebase/firebase.ts";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -58,7 +60,13 @@ const Register = () => {
       });
 
       alert("Account Created Successfully");
-
+      await setDoc(doc(db, "users", userCredential.user.uid), {
+        username,
+        email,
+        bio: "",
+        profileImage: "",
+        createdAt: new Date(),
+      });
       navigate("/");
     } catch (error) {
       alert(error.message);

@@ -5,7 +5,7 @@ import {
   FaUser,
   FaPlusSquare,
 } from "react-icons/fa";
-
+import { Link } from "react-router-dom";
 const Sidebar = () => {
   return (
     <aside className="w-64 h-screen border-r border-pink-500/30 bg-linear-to-b from-zinc-950 to-zinc-900/50 text-white p-6 hidden md:block">
@@ -40,11 +40,13 @@ const Sidebar = () => {
           <p className="text-lg group-hover:text-pink-400">Create</p>
         </div>
 
-        <div className="flex items-center gap-4 cursor-pointer hover:text-pink-400 transition group">
-          <FaUser size={22} className="group-hover:text-pink-500" />
+        <Link to="/profile">
+          <div className="flex items-center gap-4 cursor-pointer hover:text-zinc-400 transition">
+            <FaUser size={22} />
 
-          <p className="text-lg group-hover:text-pink-400">Profile</p>
-        </div>
+            <p className="text-lg">Profile</p>
+          </div>
+        </Link>
       </nav>
     </aside>
   );
