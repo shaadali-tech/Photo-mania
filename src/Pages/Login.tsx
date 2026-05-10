@@ -36,7 +36,8 @@ const Login = () => {
 
       navigate("/");
     } catch (error) {
-      alert(error.message);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      alert((error as any).message);
     } finally {
       setLoading(false);
     }
@@ -50,7 +51,8 @@ const Login = () => {
 
       navigate("/");
     } catch (error) {
-      alert(error.message);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      alert((error as any).message);
     } finally {
       setLoading(false);
     }
