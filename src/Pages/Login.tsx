@@ -1,8 +1,13 @@
 import { useState } from "react";
 
-import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signInWithRedirect,
+} from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 
-import { auth, googleProvider } from "@/firebase/firebase.ts";
+import { auth, db, googleProvider } from "@/firebase/firebase.ts";
 
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -22,6 +27,21 @@ const Login = () => {
   const [password, setPassword] = useState("");
 
   const [loading, setLoading] = useState(false);
+
+  const getGoogleErrorMessage = (errorCode: string) => {
+    switch (errorCode) {
+      case "auth/popup-blocked":
+        return "Popup was blocked by your browser. Retrying with redirect...";
+      case "auth/popup-closed-by-user":
+        return "Google sign-in popup was closed before completing sign in.";
+      case "auth/operation-not-allowed":
+        return "Google sign-in is not enabled in Firebase Authentication.";
+      case "auth/unauthorized-domain":
+        return "This domain is not authorized in Firebase Auth. Add it in Firebase Console > Authentication > Settings > Authorized domains.";
+      default:
+        return "Google sign-in failed. Please try again.";
+    }
+  };
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -47,12 +67,32 @@ const Login = () => {
     try {
       setLoading(true);
 
-      await signInWithPopup(auth, googleProvider);
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+
+      // Ensure users profile document exists for Google sign-in from login page.
+      await setDoc(
+        doc(db, "users", user.uid),
+        {
+          username: user.displayName || "",
+          email: user.email || "",
+          bio: "",
+          profileImage: user.photoURL || "",
+        },
+        { merge: true },
+      );
 
       navigate("/");
     } catch (error) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      alert((error as any).message);
+      const code = (error as { code?: string })?.code || "";
+
+      if (code === "auth/popup-blocked") {
+        alert(getGoogleErrorMessage(code));
+        await signInWithRedirect(auth, googleProvider);
+        return;
+      }
+
+      alert(getGoogleErrorMessage(code));
     } finally {
       setLoading(false);
     }

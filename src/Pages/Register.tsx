@@ -3,6 +3,7 @@ import { useState } from "react";
 import {
   createUserWithEmailAndPassword,
   signInWithPopup,
+  signInWithRedirect,
   updateProfile,
 } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
@@ -32,6 +33,21 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const [loading, setLoading] = useState(false);
+
+  const getGoogleErrorMessage = (errorCode: string) => {
+    switch (errorCode) {
+      case "auth/popup-blocked":
+        return "Popup was blocked by your browser. Retrying with redirect...";
+      case "auth/popup-closed-by-user":
+        return "Google sign-in popup was closed before completing sign in.";
+      case "auth/operation-not-allowed":
+        return "Google sign-in is not enabled in Firebase Authentication.";
+      case "auth/unauthorized-domain":
+        return "This domain is not authorized in Firebase Auth. Add it in Firebase Console > Authentication > Settings > Authorized domains.";
+      default:
+        return "Google sign-in failed. Please try again.";
+    }
+  };
 
   // Register with Email
   const handleRegister = async () => {
@@ -100,20 +116,27 @@ const Register = () => {
 
       navigate("/");
     } catch (error) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      alert((error as any).message || "Google sign-in failed");
+      const code = (error as { code?: string })?.code || "";
+
+      if (code === "auth/popup-blocked") {
+        alert(getGoogleErrorMessage(code));
+        await signInWithRedirect(auth, googleProvider);
+        return;
+      }
+
+      alert(getGoogleErrorMessage(code));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-zinc-950 via-red-950/30 to-pink-950/30 px-4">
-      <Card className="w-full max-w-md bg-gradient-to-br from-zinc-950 via-red-950/20 to-pink-950/20 border-pink-500/30 text-white shadow-2xl">
+    <div className="flex items-center justify-center min-h-screen bg-linear-to-br from-zinc-950 via-red-950/30 to-pink-950/30 px-4">
+      <Card className="w-full max-w-md bg-linear-to-br from-zinc-950 via-red-950/20 to-pink-950/20 border-pink-500/30 text-white shadow-2xl">
         <CardContent className="space-y-5 pt-8">
           {/* Logo */}
           <div className="text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-red-400">
+            <h1 className="text-4xl font-bold tracking-tight text-transparent bg-clip-text bg-linear-to-r from-pink-400 to-red-400">
               Photoholic
             </h1>
 
@@ -174,7 +197,7 @@ const Register = () => {
 
           {/* Register Button */}
           <Button
-            className="w-full cursor-pointer bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-semibold"
+            className="w-full cursor-pointer bg-linear-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white font-semibold"
             onClick={handleRegister}
             disabled={loading}
           >
@@ -193,7 +216,7 @@ const Register = () => {
           {/* Google Signup */}
           <Button
             variant="outline"
-            className="w-full flex items-center gap-2 cursor-pointer bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white border-pink-500/50"
+            className="w-full flex items-center gap-2 cursor-pointer bg-linear-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white border-pink-500/50"
             onClick={handleGoogleSignup}
             disabled={loading}
           >
