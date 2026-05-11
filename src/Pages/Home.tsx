@@ -1,11 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 
 import { db } from "../firebase/firebase";
 
 import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+
 import MainLayout from "@/Layout/MainLayout";
-import PostCard from "@/ProjectComponents/PostCard";
 import CreatePost from "@/ProjectComponents/CreatePost";
+import PostSkeleton from "@/ProjectComponents/PostSkeleton";
+
+// Lazy load PostCard
+const PostCard = lazy(() => import("@/ProjectComponents/PostCard"));
 
 type CommentType = {
   text: string;
@@ -23,6 +27,7 @@ type PostType = {
 
 const Home = () => {
   const [posts, setPosts] = useState<PostType[]>([]);
+  const [loading, setLoading] = useState(true);
 
   // Fetch posts
   useEffect(() => {
@@ -35,6 +40,7 @@ const Home = () => {
       }));
 
       setPosts(postsData);
+      setLoading(false);
     });
 
     return () => unsubscribe();
@@ -53,18 +59,36 @@ const Home = () => {
         </div>
 
         {/* Posts */}
-        {posts.length > 0 ? (
-          posts.map((post) => (
-            <PostCard
-              key={post.id}
-              id={post.id}
-              imageUrl={post.imageUrl}
-              caption={post.caption}
-              userEmail={post.userEmail}
-              likes={post.likes}
-              comments={post.comments}
-            />
-          ))
+        {loading ? (
+          <div className="space-y-6">
+            {[1, 2, 3].map((item) => (
+              <PostSkeleton key={item} />
+            ))}
+          </div>
+        ) : posts.length > 0 ? (
+          <Suspense
+            fallback={
+              <div className="text-center py-10">
+                <div className="space-y-6">
+                  {[1, 2, 3].map((item) => (
+                    <PostSkeleton key={item} />
+                  ))}
+                </div>
+              </div>
+            }
+          >
+            {posts.map((post) => (
+              <PostCard
+                key={post.id}
+                id={post.id}
+                imageUrl={post.imageUrl}
+                caption={post.caption}
+                userEmail={post.userEmail}
+                likes={post.likes}
+                comments={post.comments}
+              />
+            ))}
+          </Suspense>
         ) : (
           <div className="text-center py-12">
             <p className="text-pink-300/70">

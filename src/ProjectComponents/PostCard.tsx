@@ -15,9 +15,9 @@ type PostCardProps = {
   id: string;
   imageUrl: string;
   caption: string;
-  userEmail: string;
-  likes: string[];
-  comments: CommentType[];
+  userEmail?: string;
+  likes?: string[];
+  comments?: CommentType[];
 };
 
 const PostCard = ({
@@ -86,6 +86,7 @@ const PostCard = ({
         src={imageUrl}
         alt="post"
         className="w-full max-h-125 object-cover"
+        loading="lazy"
       />
 
       {/* Actions */}
