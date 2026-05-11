@@ -4,62 +4,146 @@ import {
   FaBell,
   FaUser,
   FaPlusSquare,
+  FaSearch,
+  FaTimes,
 } from "react-icons/fa";
+
 import { Link } from "react-router-dom";
-import { FaSearch } from "react-icons/fa";
-const Sidebar = () => {
+
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
+  const navItems = [
+    { path: "/", icon: FaHome, label: "Home" },
+    { path: "/search", icon: FaSearch, label: "Search" },
+    { path: "/explore", icon: FaCompass, label: "Explore" },
+    { path: "/notifications", icon: FaBell, label: "Notifications" },
+    { path: "/create-post", icon: FaPlusSquare, label: "Create" },
+    { path: "/profile", icon: FaUser, label: "Profile" },
+  ];
+
   return (
-    <aside className="w-64 h-screen border-r border-pink-500/30 bg-gradient-to-b from-zinc-950 to-zinc-900/50 text-white p-6 hidden md:block">
-      {/* Logo */}
-      <h1 className="text-3xl font-bold mb-10 text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-red-400">
-        Photoholic
-      </h1>
+    <>
+      {/* Desktop Sidebar */}
+      <aside className="w-64 h-screen border-r border-pink-500/30 bg-linear-to-b from-zinc-950 to-zinc-900/50 text-white p-6 hidden md:block fixed left-0 top-16">
+        {/* Logo */}
+        <h1 className="text-3xl font-bold mb-10 text-transparent bg-clip-text bg-linear-to-r from-pink-400 to-red-400">
+          Photoholic
+        </h1>
 
-      {/* Navigation */}
-      <nav className="space-y-6">
-        <Link to="/search">
-          <div className="flex items-center gap-4 cursor-pointer hover:text-zinc-400 transition">
-            <FaSearch size={22} />
+        {/* Navigation */}
+        <nav className="space-y-6">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link key={item.path} to={item.path}>
+                <div className="flex items-center gap-4 cursor-pointer hover:text-pink-400 transition group">
+                  <Icon
+                    size={22}
+                    className={
+                      item.label === "Create" ? "group-hover:text-pink-500" : ""
+                    }
+                  />
 
-            <p className="text-lg">Search</p>
-          </div>
-        </Link>
-        <div className="flex items-center gap-4 cursor-pointer hover:text-pink-400 transition group">
-          <FaHome size={22} className="group-hover:text-pink-500" />
+                  <p
+                    className={
+                      item.label === "Create"
+                        ? "text-lg group-hover:text-pink-400"
+                        : "text-lg"
+                    }
+                  >
+                    {item.label}
+                  </p>
+                </div>
+              </Link>
+            );
+          })}
+        </nav>
+      </aside>
 
-          <p className="text-lg group-hover:text-pink-400">Home</p>
-        </div>
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          onClick={onClose}
+        />
+      )}
 
-        <Link to="/explore">
-          <div className="flex items-center gap-4 cursor-pointer hover:text-zinc-400 transition">
-            <FaCompass size={22} />
+      {/* Mobile Sidebar Drawer */}
+      <aside
+        className={`
+          fixed
+          left-0
+          top-16
+          w-64
+          h-[calc(100vh-64px)]
+          bg-linear-to-b
+          from-zinc-950
+          to-zinc-900/50
+          text-white
+          p-6
+          border-r
+          border-pink-500/30
+          z-40
+          md:hidden
+          transform
+          transition-transform
+          duration-300
+          ${isOpen ? "translate-x-0" : "-translate-x-full"}
+        `}
+      >
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-pink-400 hover:text-pink-300 transition"
+          aria-label="Close sidebar"
+        >
+          <FaTimes size={24} />
+        </button>
 
-            <p className="text-lg">Explore</p>
-          </div>
-        </Link>
-        <Link to="/notifications">
-          <div className="flex items-center gap-4 cursor-pointer hover:text-zinc-400 transition">
-            <FaBell size={22} />
+        {/* Logo */}
+        <h1 className="text-3xl font-bold mb-10 mt-6 text-transparent bg-clip-text bg-linear-to-r from-pink-400 to-red-400">
+          Photoholic
+        </h1>
 
-            <p className="text-lg">Notifications</p>
-          </div>
-        </Link>
+        {/* Navigation */}
+        <nav className="space-y-6">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={onClose}
+                className="block"
+              >
+                <div className="flex items-center gap-4 cursor-pointer hover:text-pink-400 transition group">
+                  <Icon
+                    size={22}
+                    className={
+                      item.label === "Create" ? "group-hover:text-pink-500" : ""
+                    }
+                  />
 
-        <div className="flex items-center gap-4 cursor-pointer hover:text-pink-400 transition group">
-          <FaPlusSquare size={22} className="group-hover:text-pink-500" />
-
-          <p className="text-lg group-hover:text-pink-400">Create</p>
-        </div>
-
-        <Link to="/profile">
-          <div className="flex items-center gap-4 cursor-pointer hover:text-zinc-400 transition">
-            <FaUser size={22} />
-
-            <p className="text-lg">Profile</p>
-          </div>
-        </Link>
-      </nav>
-    </aside>
+                  <p
+                    className={
+                      item.label === "Create"
+                        ? "text-lg group-hover:text-pink-400"
+                        : "text-lg"
+                    }
+                  >
+                    {item.label}
+                  </p>
+                </div>
+              </Link>
+            );
+          })}
+        </nav>
+      </aside>
+    </>
   );
 };
 
